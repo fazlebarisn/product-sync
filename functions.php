@@ -19,24 +19,3 @@ if( ! function_exists('dd') ){
         }
     }
 }
-
-/**
- * A function to check value is set or not
- * If the value is set, retuen the value or retuen the default value
- * @param string $option_name The name under the value register
- * @param string $key The option key name
- * @param string $default Can be empty
- * @return string $value
- * @author Fazle Bari
- */
-if( ! function_exists( 'fbs_isset_empty') ){
-    function fbs_isset_empty( $option_name, $key, $default = '' ){
-
-        $fbs_options = get_option('fbs_cart_table');
-
-        $value = $fbs_options[$option_name][$key] ?? '';
-        $value = ! empty($value) ? $value : $default;
-
-        return $value;
-    }
-}

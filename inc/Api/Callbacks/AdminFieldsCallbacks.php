@@ -1,7 +1,5 @@
 <?php
-/**
- * @package fbs-ct-pro
-*/
+
 namespace Inc\Api\Callbacks;
 
 use \Inc\Base\BaseController;
@@ -19,162 +17,17 @@ class AdminFieldsCallbacks extends BaseController
      */
     public function dashboarSanitize($input_array)
     {
-        $sanitized_array = [];
-    
-        foreach ($input_array as $key => $sub_array) {
-            $sanitized_sub_array = [];
-    
-            foreach ($sub_array as $sub_key => $value) {
-                // Allow color codes starting with # followed by 3 or 6 characters.
-                if (preg_match('/^#[0-9a-fA-F]{3}([0-9a-fA-F]{3})?$/', $value)) {
-                    // Remove extra spaces
-                    $sanitized_value = preg_replace('/\s+/', ' ', $value);
-                    $sanitized_sub_array[$sub_key] = $sanitized_value;
-                } elseif (preg_match('/^[a-zA-Z0-9_ ]+$/', $value) || preg_match('/^[0-9]+[a-zA-Z]+(\s[a-zA-Z]+)? #[0-9a-fA-F]{3}([0-9a-fA-F]{3})?$/', $value) || preg_match('/^\d+(px|em) (solid|dotted|dashed) #[0-9a-fA-F]{3}([0-9a-fA-F]{3})?$/', $value)) {
-                    // Allow numbers, alphanumeric strings with underscores and a single space, or values like "2px solid #fff".
-                    $sanitized_value = preg_replace('/\s+/', ' ', $value);
-                    $sanitized_sub_array[$sub_key] = $sanitized_value;
-                } else {
-                    // If the value doesn't match the allowed patterns, set it to empty
-                    $sanitized_sub_array[$sub_key] = '';
-                }
-            }
-    
-            $sanitized_array[$key] = $sanitized_sub_array;
-        }
-    
-        return $sanitized_array;
-    }
-    
-    
-    
-    
-    
-    
-    
-    
-    /**
-	 * Section description for column settings
-	 * @since 1.0.0
-	 * @author Fazle Bari <fazlebarisn@gmail.com>
-	 */
-    public function enableColumn(){
-        $active_col = $this->fbs_ct_options['active_col'] ?? [];
-        echo '<div class="fbs-active">';
-        if( ! empty( $active_col ) ){
-            echo __('<p class="fbs-section-subtitle columns">Active or deactive columns. You can move the column up and down. Save and see the change.</p>', 'fbs-cart-table-pro') ;
-        }else{
-            echo __('<span class="no-column">No column has been activated yet</span>', 'fbs-cart-table-pro');
-        }
-        echo '</div>';
        
+    
+        return $input_array;
     }
 
     /**
-	 * Section description for thumbnail column settings
+	 * Section description for add API key
 	 * @since 1.0.0
 	 * @author Fazle Bari <fazlebarisn@gmail.com>
 	 */
-    public function thumbColumn(){
-        echo __('<p class="fbs-section-subtitle">Product thumbnail column settings', 'fbs-cart-table-pro') ;
-    }
-
-    /**
-	 * Section description for product name column settings
-	 * @since 1.0.0
-	 * @author Fazle Bari <fazlebarisn@gmail.com>
-	 */
-    public function nameColumn(){
-        echo __('<p class="fbs-section-subtitle">Product name column settings', 'fbs-cart-table-pro') ;
-    }
-
-    /**
-	 * Section description for price column settings
-	 * @since 1.0.0
-	 * @author Fazle Bari <fazlebarisn@gmail.com>
-	 */
-    public function priceColumn(){
-        echo __('<p class="fbs-section-subtitle">Product Price column settings', 'fbs-cart-table-pro') ;
-    }
-
-    /**
-	 * Section description for quantity column settings
-	 * @since 1.0.0
-	 * @author Fazle Bari <fazlebarisn@gmail.com>
-	 */
-    public function quantityColumn(){
-        echo __('<p class="fbs-section-subtitle">Product quantity column settings', 'fbs-cart-table-pro') ;
-    }
-
-    /**
-	 * Section description for subtotal column settings
-	 * @since 1.0.0
-	 * @author Fazle Bari <fazlebarisn@gmail.com>
-	 */
-    public function totalColumn(){
-        echo __('<p class="fbs-section-subtitle">Subtotal column settings', 'fbs-cart-table-pro') ;
-    }
-
-    /**
-	 * Section description for table head design
-	 * @since 1.0.0
-	 * @author Fazle Bari <fazlebarisn@gmail.com>
-	 */
-    public function designHeadSection(){
-        echo __('<p class="fbs-section-subtitle">Design The Head section', 'fbs-cart-table-pro') ;
-    }
-
-    /**
-	 * Section description for table body design
-	 * @since 1.0.0
-	 * @author Fazle Bari <fazlebarisn@gmail.com>
-	 */
-    public function designBodySection(){
-        echo __('<p class="fbs-section-subtitle">Design The Table body section', 'fbs-cart-table-pro') ;
-    }
-
-    /**
-	 * Section description for table row design
-	 * @since 1.0.0
-	 * @author Fazle Bari <fazlebarisn@gmail.com>
-	 */
-    public function designRowSection(){
-        echo __('<p class="fbs-section-subtitle">Design The Table Row section', 'fbs-cart-table-pro') ;
-    }
-
-    /**
-	 * Section description for table cell design
-	 * @since 1.0.0
-	 * @author Fazle Bari <fazlebarisn@gmail.com>
-	 */
-    public function designCellSection(){
-        echo __('<p class="fbs-section-subtitle">Design The Table Cell section', 'fbs-cart-table-pro') ;
-    }
-
-    /**
-	 * Section description for cart page basic settings
-	 * @since 1.0.0
-	 * @author Fazle Bari <fazlebarisn@gmail.com>
-	 */
-    public function basicSettings(){
-        echo __('<p class="fbs-section-subtitle">Cart page basic settings', 'fbs-cart-table-pro') ;
-    }
-
-    /**
-	 * Section description for update cart button
-	 * @since 1.0.0
-	 * @author Fazle Bari <fazlebarisn@gmail.com>
-	 */
-    public function updateCart(){
-        echo __('<p class="fbs-section-subtitle">Design Update Cart Button', 'fbs-cart-table-pro') ;
-    }
-
-    /**
-	 * Section description for apply coupon button
-	 * @since 1.0.0
-	 * @author Fazle Bari <fazlebarisn@gmail.com>
-	 */
-    public function applyCoupon(){
+    public function addApiKey(){
         echo __('<p class="fbs-section-subtitle">Design Apply Coupon Button', 'fbs-cart-table-pro') ;
     }
 

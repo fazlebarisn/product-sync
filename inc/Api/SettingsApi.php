@@ -1,7 +1,5 @@
 <?php
-/**
- * @package fbs-ct-pro
-*/
+
 namespace Inc\Api;
 
 class SettingsApi
