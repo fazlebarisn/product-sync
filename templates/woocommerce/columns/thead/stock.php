@@ -1,0 +1,1 @@
+<th class="product-stock"><?php echo esc_html( 'Stock'); ?></th>

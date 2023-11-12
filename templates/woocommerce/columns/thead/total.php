@@ -1,0 +1,1 @@
+<th class="product-subtotal"><?php esc_html_e( $fbs_col_total_title, 'woocommerce' ); ?></th>

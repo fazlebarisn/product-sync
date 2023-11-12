@@ -1,0 +1,11 @@
+{
+    "name": "fbs/table",
+    "description": "A Woocommerce cart table plugin",
+    "type": "project",
+    "license": "GPL",
+    "minimum-stability": "dev",
+    "require": {},
+    "autoload": {
+        "psr-4": {"Inc\\": "./inc"}
+    }
+}

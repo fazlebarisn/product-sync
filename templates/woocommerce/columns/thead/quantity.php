@@ -1,0 +1,1 @@
+<th class="product-quantity"><?php esc_html_e( $fbs_col_qty_title , 'woocommerce' ); ?></th>

@@ -1,0 +1,1 @@
+<th class="product-name"><?php echo esc_html( $fbs_col_product_title); ?></th>
