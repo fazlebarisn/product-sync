@@ -7,13 +7,12 @@
  * Author:					Fazle Bari
  * Author URI:				https://www.chitabd.com/
  * Requires PHP:			7.2
- * Tested up to:			6.3
+ * Tested up to:			6.4
  * WC requires at least:	3.0.0
  * WC tested up to: 	 	8.2.1
  * Licence:					GPL Or leater
- * Text Domain:				fbs-cart-table-pro
+ * Text Domain:				product-sync
  * Domain Path:				/languages/
- * @package fbs-ct-pro
  */
 
 
@@ -30,31 +29,31 @@ if( file_exists(dirname( __FILE__ ). '/vendor/autoload.php')){
 define('FBS_TABLE_PRO_PATH', plugin_dir_path( __FILE__) );
 
 // Active Plugin
-function activate_fbs_cart_table_pro(){
+function activate_fbs_product_sync(){
 	Inc\Base\Activate::activate();
 }
 
-register_activation_hook( __FILE__, 'activate_fbs_cart_table_pro');
+register_activation_hook( __FILE__, 'activate_fbs_product_sync');
 
 // Deactive Plugin
-function deactivate_fbs_cart_table_pro(){
+function deactivate_fbs_product_sync(){
 	Inc\Base\Deactivate::deactivate();
 }
 
-register_deactivation_hook( __FILE__, 'deactivate_fbs_cart_table_pro');
+register_deactivation_hook( __FILE__, 'deactivate_fbs_product_sync');
 
 /**
  * Initialize all the core classess of the plugin
  * @since 1.0.0
  * @author Fazle Bari <fazlebarisn@gmail.com>
  */
-function fbsCtPluginInitPro(){
+function fbsProductSync(){
 
 	if (class_exists("Inc\\Init")) {
 		Inc\Init::register_services();
 	}
 }
-add_action( 'init' , 'fbsCtPluginInitPro' );
+add_action( 'init' , 'fbsProductSync' );
 
 
 /**
@@ -63,11 +62,11 @@ add_action( 'init' , 'fbsCtPluginInitPro' );
  * @since 1.0.0
  * @author Fazle Bari <fazlebarisn@gmail.com>
  */ 
-if( ! function_exists( 'fbs_ct_hpos' ) ){
+if( ! function_exists( 'fbs_product_sync_hpos' ) ){
 	function fbs_ct_hpos(){
 		if (class_exists('\Automattic\WooCommerce\Utilities\FeaturesUtil')) {
 			\Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility('custom_order_tables', __FILE__, true);
 		}
 	}
-	add_action( 'before_woocommerce_init', 'fbs_ct_hpos' );
+	add_action( 'before_woocommerce_init', 'fbs_product_sync_hpos' );
 }
