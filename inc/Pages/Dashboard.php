@@ -37,10 +37,10 @@ class Dashboard extends BaseController
 	public function setPages(){
 		$this->pages = [
 			[
-				'page_title' => 'Fbs Cart Table',
-				'menu_title' => 'Fbs Cart Table',
+				'page_title' => 'Product Sync',
+				'menu_title' => 'Product Sync',
 				'capability' => 'manage_options',
-				'menu_slug'  => 'fbs_cart_table',
+				'menu_slug'  => 'fbs_product_sync',
 				'callback'   => [ $this->callbacks, 'adminDashboard' ],
 				'icon_url'   => 'dashicons-cart',
 				'position'   => 110
@@ -57,7 +57,7 @@ class Dashboard extends BaseController
 	public function setSubPages(){
 		$this->subpages = [
 			[
-				'parent_slug'=> 'fbs_cart_table',
+				'parent_slug'=> 'fbs_product_sync',
 				'page_title' => 'Browse Our Plugins',
 				'menu_title' => 'Browse Plugins',
 				'capability' => 'manage_options',
@@ -65,7 +65,7 @@ class Dashboard extends BaseController
 				'callback'   => [ $this->callbacks, 'browsePlugins' ]
 			],
 			[
-				'parent_slug'=> 'fbs_cart_table',
+				'parent_slug'=> 'fbs_product_sync',
 				'page_title' => 'About The Author',
 				'menu_title' => 'Author Info',
 				'capability' => 'manage_options',

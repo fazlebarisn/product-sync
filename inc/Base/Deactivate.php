@@ -1,7 +1,4 @@
 <?php
-/**
- * @package fbs-ct-pro
-*/
 namespace Inc\Base;
 
 class Deactivate

@@ -1,7 +1,4 @@
 <?php
-/**
- * @package fbs-ct-pro
-*/
 namespace Inc;
 
 final class Init
@@ -13,14 +10,10 @@ final class Init
 
 	public static function get_services(){
 		return[
-			Base\Table::class,
 			Base\Enqueue::class,
 			Base\AdminNotic::class,
 			Pages\Dashboard::class,
 			Base\SettingsLinks::class,
-			Pages\Sections\Design::class,
-			Pages\Sections\Others::class,
-			Pages\Sections\Columns::class,
 		];
 	}
 

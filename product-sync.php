@@ -26,7 +26,7 @@ if( file_exists(dirname( __FILE__ ). '/vendor/autoload.php')){
 	require_once dirname( __FILE__ ). '/vendor/autoload.php';
 }
 
-define('FBS_TABLE_PRO_PATH', plugin_dir_path( __FILE__) );
+define('FBS_PRODUCT_SYNC_PATH', plugin_dir_path( __FILE__) );
 
 // Active Plugin
 function activate_fbs_product_sync(){
@@ -63,7 +63,7 @@ add_action( 'init' , 'fbsProductSync' );
  * @author Fazle Bari <fazlebarisn@gmail.com>
  */ 
 if( ! function_exists( 'fbs_product_sync_hpos' ) ){
-	function fbs_ct_hpos(){
+	function fbs_product_sync_hpos(){
 		if (class_exists('\Automattic\WooCommerce\Utilities\FeaturesUtil')) {
 			\Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility('custom_order_tables', __FILE__, true);
 		}

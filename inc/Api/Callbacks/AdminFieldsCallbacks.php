@@ -28,7 +28,7 @@ class AdminFieldsCallbacks extends BaseController
 	 * @author Fazle Bari <fazlebarisn@gmail.com>
 	 */
     public function addApiKey(){
-        echo __('<p class="fbs-section-subtitle">Design Apply Coupon Button', 'fbs-cart-table-pro') ;
+        echo __('<p class="fbs-section-subtitle">Design Apply Coupon Button', 'product-sync') ;
     }
 
     /**

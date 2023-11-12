@@ -130,7 +130,7 @@ do_action( 'woocommerce_before_cart' ); ?>
 				<?php 
 				if( is_array( $active_cols ) && ! empty($active_cols) ){
 					foreach( $active_cols as $key => $col ){
-						include FBS_TABLE_PRO_PATH . "templates/woocommerce/columns/thead/{$key}.php";
+						include FBS_PRODUCT_SYNC_PATH . "templates/woocommerce/columns/thead/{$key}.php";
 					}
 				}
 				?>
@@ -160,7 +160,7 @@ do_action( 'woocommerce_before_cart' ); ?>
 						<?php
 						if( is_array( $active_cols ) && ! empty($active_cols) ){
 							foreach( $active_cols as $key => $col ){
-								include FBS_TABLE_PRO_PATH . "templates/woocommerce/columns/{$key}.php";
+								include FBS_PRODUCT_SYNC_PATH . "templates/woocommerce/columns/{$key}.php";
 							}
 						}
 						?>
