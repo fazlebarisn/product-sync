@@ -47,6 +47,7 @@ add_action('admin_menu', 'fbs_add_synchronize_button');
      }
  
      echo '<form method="post">';
+     echo '<p> Click the button below to synchronize products</p>';
      echo '<input type="submit" class="button button-primary" name="sync_button" value="Synchronize Products">';
      echo '</form>';
      echo '</div>';
@@ -57,45 +58,49 @@ add_action('admin_menu', 'fbs_add_synchronize_button');
  * @since 1.0.0
  * @author Fazle Bari <fazlebarisn@gmail.com>
  */ 
- function fbs_synchronize_products_function() {
-     // Get products from WordPressShop1
-     $products_from_shop1 = fbs_get_products_from_shop1();
- 
-     foreach ($products_from_shop1 as $product_from_shop1) {
-         $product_id = $product_from_shop1['id'];
- 
-         // Check if the product already exists in WordPressShop2
-         $existing_product = wc_get_product($product_id);
- 
-         // Product data from WordPressShop1
-         $product_data = array(
-             'name' => $product_from_shop1['name'],
-             'type' => $product_from_shop1['type'],
-             'regular_price' => $product_from_shop1['regular_price'],
-             'description' => $product_from_shop1['description'],
-             'short_description' => $product_from_shop1['short_description'],
-             'sku' => $product_from_shop1['sku'],
-             'stock_status' => $product_from_shop1['stock_status'],
-             'featured' => $product_from_shop1['featured'],
-             // we can add other product data fields as needed.
-         );
- 
-         if ($existing_product) {
-             // Product exists, update it
-             $existing_product->set_props($product_data);
-             $existing_product->save();
-         } else {
-             // Product doesn't exist, create it
-             $new_product = new WC_Product();
-             $new_product->set_props($product_data);
-             $new_product->save();
-         }
- 
-         // Synchronize the custom field 'Brand'
-         $brand_value = get_field('brand', $product_id); 
-         update_field('brand', $brand_value, $product_id); 
-     }
- }
+function fbs_synchronize_products_function() {
+    // Get products from WordPressShop1
+    $products_from_shop1 = fbs_get_products_from_shop1();
+
+    if (is_array($products_from_shop1) && !empty($products_from_shop1)) {
+        foreach ($products_from_shop1 as $product_from_shop1) {
+            $product_id = $product_from_shop1['id'];
+
+            // Check if the product already exists in WordPressShop2
+            $existing_product = wc_get_product($product_id);
+
+            // Product data from WordPressShop1
+            $product_data = array(
+                'name' => $product_from_shop1['name'],
+                'type' => $product_from_shop1['type'],
+                'regular_price' => $product_from_shop1['regular_price'],
+                'description' => $product_from_shop1['description'],
+                'short_description' => $product_from_shop1['short_description'],
+                'sku' => $product_from_shop1['sku'],
+                'stock_status' => $product_from_shop1['stock_status'],
+                'featured' => $product_from_shop1['featured'],
+                'brand' => get_field('brand', $product_id), // Synchronize the custom field 'Brand'
+                // Add other product data fields as needed.
+            );
+
+            if ($existing_product && $existing_product->get_id()) {
+                // Product exists, update it
+                $existing_product->set_props($product_data);
+                $existing_product->save();
+            } else {
+                // Product doesn't exist, create it
+                $new_product = wc_get_product($product_id);
+                
+                if (!$new_product || !$new_product->get_id()) {
+                    $new_product = new WC_Product();
+                    $new_product->set_props($product_data);
+                    $new_product->save();
+                }
+            }
+        }
+    }
+}
+
  
  
 /**

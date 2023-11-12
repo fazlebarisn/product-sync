@@ -23,8 +23,22 @@ define( 'FBS_PRODUCT_SYNC_URL' , plugins_url( '' , FBS_PRODUCT_SYNC_FILE ) );
 define( 'FBS_PRODUCT_SYNC_ASSETS' , FBS_PRODUCT_SYNC_URL . '/assets' );
 define( 'FBS_PRODUCT_SYNC_BASENAME' , plugin_basename(__FILE__) );
 
-if( file_exists(dirname( __FILE__ ). '/functions.php')){
-	require_once dirname( __FILE__ ). '/functions.php';
+
+/**
+ * add admin notice for WooCommerce.
+ * Support WooCommerce High-performance order storage
+ * @since 1.0.0
+ * @author Fazle Bari <fazlebarisn@gmail.com>
+ */ 
+function fbs_admin_notice_missing_main_plugin(){
+	$class = 'notice notice-error';
+	$message = __( "Product Synchronization Plugin Requires WooCommerce to be Activated", "product-faq-for-woocommerce" );
+ 
+	printf( '<div class="%1$s"><p>%2$s</p></div>', esc_attr( $class ), esc_html( $message ) );
+}
+
+if ( !in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', get_option( 'active_plugins' ) ) ) ) {
+	add_action( 'admin_notices', 'fbs_admin_notice_missing_main_plugin' );
 }
 
 /**
@@ -42,3 +56,7 @@ if( ! function_exists( 'fbs_product_sync_hpos' ) ){
 	add_action( 'before_woocommerce_init', 'fbs_product_sync_hpos' );
 }
 
+// add functions.php file
+if( file_exists(dirname( __FILE__ ). '/functions.php')){
+	require_once dirname( __FILE__ ). '/functions.php';
+}
