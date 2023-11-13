@@ -67,7 +67,7 @@ function fbs_synchronize_products_function() {
             $product_id = $product_from_shop1['id'];
 
             // Check if the product already exists in WordPressShop2 using SKU
-            $existing_product = wc_get_product_id_by_sku($product_from_shop1['sku']);
+            $existing_product_id = wc_get_product_id_by_sku($product_from_shop1['sku']);
 
             // Product data from WordPressShop1
             $product_data = array(
@@ -79,23 +79,13 @@ function fbs_synchronize_products_function() {
                 'sku' => $product_from_shop1['sku'],
                 'stock_status' => $product_from_shop1['stock_status'],
                 'featured' => $product_from_shop1['featured'],
-                'brand' => $product_from_shop1['meta_data'][0]['value'],
+                'brand' => $product_from_shop1['meta_data'][0]['value'], // Assuming 'brand' is stored in meta_data
                 // Add other product data fields as needed.
             );
-// dd($product_data ); die();
-            // Synchronize the custom field 'Brand'
-            // $term_id = get_field('brand', $product_id);
 
-            // if ($term_id) {
-            //     $product_data['brand'] = $term_id;
-            // } else {
-            //     // Handle the case where the 'brand' field is not set.
-            //     // You might want to set a default value or handle it based on your requirements.
-            // }
-
-            if ($existing_product) {
+            if ($existing_product_id) {
                 // Product exists, update it
-                $existing_product = wc_get_product($existing_product);
+                $existing_product = wc_get_product($existing_product_id);
                 $existing_product->set_props($product_data);
                 $existing_product->save();
             } else {
@@ -111,7 +101,6 @@ function fbs_synchronize_products_function() {
         }
     }
 }
-
 
  
  
