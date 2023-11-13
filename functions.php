@@ -79,18 +79,19 @@ function fbs_synchronize_products_function() {
                 'sku' => $product_from_shop1['sku'],
                 'stock_status' => $product_from_shop1['stock_status'],
                 'featured' => $product_from_shop1['featured'],
+                'brand' => $product_from_shop1['meta_data'][0]['value'],
                 // Add other product data fields as needed.
             );
-
+// dd($product_data ); die();
             // Synchronize the custom field 'Brand'
-            $term_id = get_field('brand', $product_id);
+            // $term_id = get_field('brand', $product_id);
 
-            if ($term_id) {
-                $product_data['brand'] = $term_id;
-            } else {
-                // Handle the case where the 'brand' field is not set.
-                // You might want to set a default value or handle it based on your requirements.
-            }
+            // if ($term_id) {
+            //     $product_data['brand'] = $term_id;
+            // } else {
+            //     // Handle the case where the 'brand' field is not set.
+            //     // You might want to set a default value or handle it based on your requirements.
+            // }
 
             if ($existing_product) {
                 // Product exists, update it
@@ -141,7 +142,7 @@ function fbs_synchronize_products_function() {
  
      $body = wp_remote_retrieve_body($response);
      $products = json_decode($body, true);
- 
+    //  dd($products);
      if (is_array($products)) {
          return $products;
      } else {
@@ -150,4 +151,4 @@ function fbs_synchronize_products_function() {
          return false;
      }
  }
- 
+//  fbs_get_products_from_shop1();
