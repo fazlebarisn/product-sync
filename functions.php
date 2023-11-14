@@ -45,10 +45,18 @@ add_action('admin_menu', 'fbs_add_synchronize_button');
          fbs_synchronize_products_function();
          echo '<div class="updated"><p>Products synchronized successfully!</p></div>';
      }
+
+     if (isset($_POST['sync_button_brand'])) {
+         // Call the function to synchronize products.
+         fbs_update_or_create_terms();
+         echo '<div class="updated"><p>Brands synchronized successfully!</p></div>';
+     }
  
      echo '<form method="post">';
      echo '<p> Click the button below to synchronize products</p>';
      echo '<input type="submit" class="button button-primary" name="sync_button" value="Synchronize Products">';
+     echo '<p> Click the button below to synchronize Brands</p>';
+     echo '<input type="submit" class="button button-primary" name="sync_button_brand" value="Synchronize Brand">';
      echo '</form>';
      echo '</div>';
  }
@@ -79,7 +87,7 @@ function fbs_synchronize_products_function() {
                 'sku' => $product_from_shop1['sku'],
                 'stock_status' => $product_from_shop1['stock_status'],
                 'featured' => $product_from_shop1['featured'],
-                'brand' => $product_from_shop1['meta_data'][0]['value'], // Assuming 'brand' is stored in meta_data
+                // 'brand' => $product_from_shop1['meta_data'][0]['value'], // Assuming 'brand' is stored in meta_data
                 // Add other product data fields as needed.
             );
 
@@ -102,8 +110,7 @@ function fbs_synchronize_products_function() {
     }
 }
 
- 
- 
+
 /**
  * get products via api
  * @return array $products
@@ -140,4 +147,41 @@ function fbs_synchronize_products_function() {
          return false;
      }
  }
-//  fbs_get_products_from_shop1();
+
+/**
+ * Define the function to update or create terms
+ * @since 1.0.0
+ * @author Fazle Bari <fazlebarisn@gmail.com>
+ */ 
+function fbs_update_or_create_terms() {
+    $url = 'https://wordpressshop1.csoft.ca/wp-json/fbs-api/v1/get_brand_terms/';
+
+    // Fetch data from the URL
+    $response = wp_remote_get($url);
+    $data = wp_remote_retrieve_body($response);
+    $data = json_decode($data, true);
+
+    // Loop through the terms and insert/update them
+    foreach ($data as $term) {
+        $term_id = $term['term_id'];
+        $name = $term['name'];
+        $slug = $term['slug'];
+
+        // Check if the term already exists
+        $existing_term = get_term($term_id, 'brand');
+
+        if ($existing_term !== null && !is_wp_error($existing_term)) {
+            // Term exists, update it
+            wp_update_term($term_id, 'brand', ['name' => $name, 'slug' => $slug]);
+            // echo "Updated term: $term_id\n";
+        } else {
+            // Term doesn't exist, create it
+            wp_insert_term($name, 'brand', ['slug' => $slug]);
+
+        }
+    }
+
+}
+
+// Hook the function to an appropriate action
+// add_action('init', 'update_or_create_terms');
