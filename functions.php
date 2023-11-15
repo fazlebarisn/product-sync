@@ -79,8 +79,9 @@ function fbs_synchronize_products_function() {
                 'sku' => $product_from_shop1['sku'],
                 'stock_status' => $product_from_shop1['stock_status'],
                 'featured' => $product_from_shop1['featured'],
-                // 'brand' => $product_from_shop1['meta_data'][0]['value'], // Assuming 'brand' is stored in meta_data
-                // Add other product data fields as needed.
+                'weight' => $product_from_shop1['weight'], // Additional field
+                'dimensions' => $product_from_shop1['dimensions'], // Additional field
+                // Add more product data fields as needed.
             );
 
             if ($existing_product_id) {
@@ -98,6 +99,15 @@ function fbs_synchronize_products_function() {
                     $new_product->save();
                 }
             }
+
+            // Handle product variations if applicable
+            // if (isset($product_from_shop1['variations']) && is_array($product_from_shop1['variations'])) {
+            //     foreach ($product_from_shop1['variations'] as $variation_data) {
+            //         $variation = new WC_Product_Variation();
+            //         $variation->set_props($variation_data);
+            //         $product->add_variation($variation);
+            //     }
+            // }
         }
     }
 }
