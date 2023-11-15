@@ -60,7 +60,3 @@ if( ! function_exists( 'fbs_product_sync_hpos' ) ){
 if( file_exists(dirname( __FILE__ ). '/functions.php')){
 	require_once dirname( __FILE__ ). '/functions.php';
 }
-
-
-git config --global user.email "fazlebarisn@gmail.com"
-git config --global user.name "Fazle Bari"
