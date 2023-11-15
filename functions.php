@@ -46,17 +46,9 @@ add_action('admin_menu', 'fbs_add_synchronize_button');
          echo '<div class="updated"><p>Products synchronized successfully!</p></div>';
      }
 
-     if (isset($_POST['sync_button_brand'])) {
-         // Call the function to synchronize products.
-         fbs_update_or_create_terms();
-         echo '<div class="updated"><p>Brands synchronized successfully!</p></div>';
-     }
- 
      echo '<form method="post">';
      echo '<p> Click the button below to synchronize products</p>';
      echo '<input type="submit" class="button button-primary" name="sync_button" value="Synchronize Products">';
-     echo '<p> Click the button below to synchronize Brands</p>';
-     echo '<input type="submit" class="button button-primary" name="sync_button_brand" value="Synchronize Brand">';
      echo '</form>';
      echo '</div>';
  }
@@ -177,11 +169,7 @@ function fbs_update_or_create_terms() {
         } else {
             // Term doesn't exist, create it
             wp_insert_term($name, 'brand', ['slug' => $slug]);
-
         }
     }
 
 }
-
-// Hook the function to an appropriate action
-// add_action('init', 'update_or_create_terms');
