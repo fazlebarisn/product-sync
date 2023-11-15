@@ -43,6 +43,7 @@ add_action('admin_menu', 'fbs_add_synchronize_button');
      if (isset($_POST['sync_button'])) {
          // Call the function to synchronize products.
          fbs_synchronize_products_function();
+         fbs_update_or_create_terms();
          echo '<div class="updated"><p>Products synchronized successfully!</p></div>';
      }
 
@@ -88,32 +89,42 @@ function fbs_synchronize_products_function() {
                 'virtual',
                 'downloadable',
                 'downloads',
-                'categories',
-                'tags',
-                'attributes',
-                'variations',
-                'tax_status',
-                'tax_class',
-                'upsell_ids',
-                'cross_sell_ids',
-                'parent_id',
-                'grouped_products',
-                'menu_order',
-                'manage_stock',
-                'stock_quantity',
-                'backorders',
-                'sold_individually',
-                'reviews_allowed',
-                'purchase_note',
-                'upsell_ids',
-                'cross_sell_ids',
-                'gallery_image_ids',
-                'shipping_class_id',
-                'shipping_class',
                 'download_limit',
                 'download_expiry',
                 'external_url',
                 'button_text',
+                'tax_status',
+                'tax_class',
+                'manage_stock',
+                'stock_quantity',
+                'backorders',
+                'backorders_allowed',
+                'backordered',
+                'low_stock_amount',
+                'sold_individually',
+                'shipping_required',
+                'shipping_taxable',
+                'shipping_class',
+                'shipping_class_id',
+                'reviews_allowed',
+                'upsell_ids',
+                'cross_sell_ids',
+                'parent_id',
+                'purchase_note',
+                'categories',
+                'tags',
+                'images', // Include the 'images' key for handling images
+                'attributes',
+                'default_attributes',
+                'variations',
+                'grouped_products',
+                'menu_order',
+                'price_html',
+                'related_ids',
+                'meta_data',
+                'stock_status',
+                'has_options',
+                'post_password',
             );
 
             // We can modify the product fileds using the filter hook
@@ -130,6 +141,30 @@ function fbs_synchronize_products_function() {
                 $existing_product = wc_get_product($existing_product_id);
                 $existing_product->set_props($product_data);
                 $existing_product->save();
+
+                // Update product images
+                $gallery_images = $product_from_shop1['images'];
+                $gallery_image_ids = array();
+
+                // Handle product image separately
+                if (!empty($gallery_images)) {
+                    $product_image_url = $gallery_images[0]['src'];
+                    $product_image_id = fbs_upload_image_from_url($product_image_url);
+                    if ($product_image_id) {
+                        $existing_product->set_image_id($product_image_id);
+                    }
+                }
+
+                // Handle gallery images
+                for ($i = 1; $i < count($gallery_images); $i++) {
+                    $attachment_id = fbs_upload_image_from_url($gallery_images[$i]['src']);
+                    if ($attachment_id) {
+                        $gallery_image_ids[] = $attachment_id;
+                    }
+                }
+
+                $existing_product->set_gallery_image_ids($gallery_image_ids);
+                $existing_product->save();
             } else {
                 // Product doesn't exist, create it
                 $new_product = wc_get_product($product_id);
@@ -138,13 +173,69 @@ function fbs_synchronize_products_function() {
                     $new_product = new WC_Product();
                     $new_product->set_props($product_data);
                     $new_product->save();
+
+                    // Update product image
+                    $product_image_url = $product_from_shop1['images'][0]['src'];
+                    $product_image_id = fbs_upload_image_from_url($product_image_url);
+                    if ($product_image_id) {
+                        $new_product->set_image_id($product_image_id);
+                    }
+
+                    // Update gallery images
+                    $gallery_images = $product_from_shop1['images'];
+                    $gallery_image_ids = array();
+
+                    for ($i = 1; $i < count($gallery_images); $i++) {
+                        $attachment_id = fbs_upload_image_from_url($gallery_images[$i]['src']);
+                        if ($attachment_id) {
+                            $gallery_image_ids[] = $attachment_id;
+                        }
+                    }
+
+                    $new_product->set_gallery_image_ids($gallery_image_ids);
+                    $new_product->save();
                 }
             }
         }
     }
 }
 
+/**
+ * Function to upload an image from a URL and return the attachment ID
+ * @since 1.0.0
+ * @author Fazle Bari <fazlebarisn@gmail.com>
+ */ 
+function fbs_upload_image_from_url($image_url) {
+    $upload_dir = wp_upload_dir();
+    $image_data = file_get_contents($image_url);
 
+    $filename = basename($image_url);
+
+    if (wp_mkdir_p($upload_dir['path'])) {
+        $file = $upload_dir['path'] . '/' . $filename;
+    } else {
+        $file = $upload_dir['basedir'] . '/' . $filename;
+    }
+
+    file_put_contents($file, $image_data);
+
+    $wp_filetype = wp_check_filetype($filename, null);
+    $attachment = array(
+        'post_mime_type' => $wp_filetype['type'],
+        'post_title'     => sanitize_file_name($filename),
+        'post_content'   => '',
+        'post_status'    => 'inherit',
+    );
+
+    $attachment_id = wp_insert_attachment($attachment, $file);
+
+    require_once(ABSPATH . 'wp-admin/includes/image.php');
+
+    $attachment_data = wp_generate_attachment_metadata($attachment_id, $file);
+    wp_update_attachment_metadata($attachment_id, $attachment_data);
+
+    return $attachment_id;
+}
 
 /**
  * get products via api
