@@ -43,9 +43,10 @@ add_action('admin_menu', 'fbs_add_synchronize_button');
      if (isset($_POST['sync_button'])) {
          // Call the function to synchronize products.
          fbs_synchronize_products_function();
+         fbs_update_or_create_terms();
          echo '<div class="updated"><p>Products synchronized successfully!</p></div>';
      }
- 
+
      echo '<form method="post">';
      echo '<p> Click the button below to synchronize products</p>';
      echo '<input type="submit" class="button button-primary" name="sync_button" value="Synchronize Products">';
@@ -67,35 +68,102 @@ function fbs_synchronize_products_function() {
             $product_id = $product_from_shop1['id'];
 
             // Check if the product already exists in WordPressShop2 using SKU
-            $existing_product = wc_get_product_id_by_sku($product_from_shop1['sku']);
+            $existing_product_id = wc_get_product_id_by_sku($product_from_shop1['sku']);
 
             // Product data from WordPressShop1
-            $product_data = array(
-                'name' => $product_from_shop1['name'],
-                'type' => $product_from_shop1['type'],
-                'regular_price' => $product_from_shop1['regular_price'],
-                'description' => $product_from_shop1['description'],
-                'short_description' => $product_from_shop1['short_description'],
-                'sku' => $product_from_shop1['sku'],
-                'stock_status' => $product_from_shop1['stock_status'],
-                'featured' => $product_from_shop1['featured'],
-                // Add other product data fields as needed.
+            $product_data = array();
+
+            // Ensure that only valid WooCommerce product fields are copied
+            $valid_keys = array(
+                'name',
+                'type',
+                'regular_price',
+                'sale_price',
+                'description',
+                'short_description',
+                'sku',
+                'stock_status',
+                'featured',
+                'weight',
+                'dimensions',
+                'virtual',
+                'downloadable',
+                'downloads',
+                'download_limit',
+                'download_expiry',
+                'external_url',
+                'button_text',
+                'tax_status',
+                'tax_class',
+                'manage_stock',
+                'stock_quantity',
+                'backorders',
+                'backorders_allowed',
+                'backordered',
+                'low_stock_amount',
+                'sold_individually',
+                'shipping_required',
+                'shipping_taxable',
+                'shipping_class',
+                'shipping_class_id',
+                'reviews_allowed',
+                'upsell_ids',
+                'cross_sell_ids',
+                'parent_id',
+                'purchase_note',
+                'categories',
+                'tags',
+                'images', // Include the 'images' key for handling images
+                'attributes',
+                'default_attributes',
+                'variations',
+                'grouped_products',
+                'menu_order',
+                'price_html',
+                'related_ids',
+                'meta_data',
+                'stock_status',
+                'has_options',
+                'post_password',
             );
 
-            // Synchronize the custom field 'Brand'
-            $term_id = get_field('brand', $product_id);
+            // We can modify the product fileds using the filter hook
+            $valid_keys = apply_filters( 'fbs_product_fileds', $valid_keys );
 
-            if ($term_id) {
-                $product_data['brand'] = $term_id;
-            } else {
-                // Handle the case where the 'brand' field is not set.
-                // You might want to set a default value or handle it based on your requirements.
+            foreach ($valid_keys as $key) {
+                if (isset($product_from_shop1[$key])) {
+                    $product_data[$key] = $product_from_shop1[$key];
+                }
             }
 
-            if ($existing_product) {
+            if ($existing_product_id) {
                 // Product exists, update it
-                $existing_product = wc_get_product($existing_product);
+                $existing_product = wc_get_product($existing_product_id);
                 $existing_product->set_props($product_data);
+                $existing_product->save();
+
+                // Update product images
+                $gallery_images = $product_from_shop1['images'];
+                $gallery_image_ids = array();
+
+                // Handle product image separately
+                if (!empty($gallery_images)) {
+                    $product_image_url = $gallery_images[0]['src'];
+                    $product_image_id = fbs_upload_image_from_url($product_image_url);
+                    if ($product_image_id) {
+                        $existing_product->set_image_id($product_image_id);
+                    }
+                }
+
+                // Handle gallery images
+                for ($i = 1; $i < count($gallery_images); $i++) {
+                    $attachment_id = fbs_upload_image_from_url($gallery_images[$i]['src']);
+                    if ($attachment_id) {
+                        $gallery_image_ids[] = $attachment_id;
+                    }
+                }
+
+                $existing_product->set_gallery_image_ids($gallery_image_ids);
                 $existing_product->save();
             } else {
                 // Product doesn't exist, create it
@@ -105,15 +173,70 @@ function fbs_synchronize_products_function() {
                     $new_product = new WC_Product();
                     $new_product->set_props($product_data);
                     $new_product->save();
+
+                    // Update product image
+                    $product_image_url = $product_from_shop1['images'][0]['src'];
+                    $product_image_id = fbs_upload_image_from_url($product_image_url);
+                    if ($product_image_id) {
+                        $new_product->set_image_id($product_image_id);
+                    }
+
+                    // Update gallery images
+                    $gallery_images = $product_from_shop1['images'];
+                    $gallery_image_ids = array();
+
+                    for ($i = 1; $i < count($gallery_images); $i++) {
+                        $attachment_id = fbs_upload_image_from_url($gallery_images[$i]['src']);
+                        if ($attachment_id) {
+                            $gallery_image_ids[] = $attachment_id;
+                        }
+                    }
+
+                    $new_product->set_gallery_image_ids($gallery_image_ids);
+                    $new_product->save();
                 }
             }
         }
     }
 }
 
+/**
+ * Function to upload an image from a URL and return the attachment ID
+ * @since 1.0.0
+ * @author Fazle Bari <fazlebarisn@gmail.com>
+ */ 
+function fbs_upload_image_from_url($image_url) {
+    $upload_dir = wp_upload_dir();
+    $image_data = file_get_contents($image_url);
 
- 
- 
+    $filename = basename($image_url);
+
+    if (wp_mkdir_p($upload_dir['path'])) {
+        $file = $upload_dir['path'] . '/' . $filename;
+    } else {
+        $file = $upload_dir['basedir'] . '/' . $filename;
+    }
+
+    file_put_contents($file, $image_data);
+
+    $wp_filetype = wp_check_filetype($filename, null);
+    $attachment = array(
+        'post_mime_type' => $wp_filetype['type'],
+        'post_title'     => sanitize_file_name($filename),
+        'post_content'   => '',
+        'post_status'    => 'inherit',
+    );
+
+    $attachment_id = wp_insert_attachment($attachment, $file);
+
+    require_once(ABSPATH . 'wp-admin/includes/image.php');
+
+    $attachment_data = wp_generate_attachment_metadata($attachment_id, $file);
+    wp_update_attachment_metadata($attachment_id, $attachment_data);
+
+    return $attachment_id;
+}
+
 /**
  * get products via api
  * @return array $products
@@ -141,7 +264,7 @@ function fbs_synchronize_products_function() {
  
      $body = wp_remote_retrieve_body($response);
      $products = json_decode($body, true);
- 
+    //  dd($products);
      if (is_array($products)) {
          return $products;
      } else {
@@ -150,4 +273,37 @@ function fbs_synchronize_products_function() {
          return false;
      }
  }
- 
+
+/**
+ * Define the function to update or create terms
+ * @since 1.0.0
+ * @author Fazle Bari <fazlebarisn@gmail.com>
+ */ 
+function fbs_update_or_create_terms() {
+    $url = 'https://wordpressshop1.csoft.ca/wp-json/fbs-api/v1/get_brand_terms/';
+
+    // Fetch data from the URL
+    $response = wp_remote_get($url);
+    $data = wp_remote_retrieve_body($response);
+    $data = json_decode($data, true);
+
+    // Loop through the terms and insert/update them
+    foreach ($data as $term) {
+        $term_id = $term['term_id'];
+        $name = $term['name'];
+        $slug = $term['slug'];
+
+        // Check if the term already exists
+        $existing_term = get_term($term_id, 'brand');
+
+        if ($existing_term !== null && !is_wp_error($existing_term)) {
+            // Term exists, update it
+            wp_update_term($term_id, 'brand', ['name' => $name, 'slug' => $slug]);
+            // echo "Updated term: $term_id\n";
+        } else {
+            // Term doesn't exist, create it
+            wp_insert_term($name, 'brand', ['slug' => $slug]);
+        }
+    }
+
+}
