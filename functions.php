@@ -70,19 +70,60 @@ function fbs_synchronize_products_function() {
             $existing_product_id = wc_get_product_id_by_sku($product_from_shop1['sku']);
 
             // Product data from WordPressShop1
-            $product_data = array(
-                'name' => $product_from_shop1['name'],
-                'type' => $product_from_shop1['type'],
-                'regular_price' => $product_from_shop1['regular_price'],
-                'description' => $product_from_shop1['description'],
-                'short_description' => $product_from_shop1['short_description'],
-                'sku' => $product_from_shop1['sku'],
-                'stock_status' => $product_from_shop1['stock_status'],
-                'featured' => $product_from_shop1['featured'],
-                'weight' => $product_from_shop1['weight'], // Additional field
-                'dimensions' => $product_from_shop1['dimensions'], // Additional field
-                // Add more product data fields as needed.
+            $product_data = array();
+
+            // Ensure that only valid WooCommerce product fields are copied
+            $valid_keys = array(
+                'name',
+                'type',
+                'regular_price',
+                'sale_price',
+                'description',
+                'short_description',
+                'sku',
+                'stock_status',
+                'featured',
+                'weight',
+                'dimensions',
+                'virtual',
+                'downloadable',
+                'downloads',
+                'categories',
+                'tags',
+                'attributes',
+                'variations',
+                'tax_status',
+                'tax_class',
+                'upsell_ids',
+                'cross_sell_ids',
+                'parent_id',
+                'grouped_products',
+                'menu_order',
+                'manage_stock',
+                'stock_quantity',
+                'backorders',
+                'sold_individually',
+                'reviews_allowed',
+                'purchase_note',
+                'upsell_ids',
+                'cross_sell_ids',
+                'gallery_image_ids',
+                'shipping_class_id',
+                'shipping_class',
+                'download_limit',
+                'download_expiry',
+                'external_url',
+                'button_text',
             );
+
+            // We can modify the product fileds using the filter hook
+            $valid_keys = apply_filters( 'fbs_product_fileds', $valid_keys );
+
+            foreach ($valid_keys as $key) {
+                if (isset($product_from_shop1[$key])) {
+                    $product_data[$key] = $product_from_shop1[$key];
+                }
+            }
 
             if ($existing_product_id) {
                 // Product exists, update it
@@ -99,18 +140,10 @@ function fbs_synchronize_products_function() {
                     $new_product->save();
                 }
             }
-
-            // Handle product variations if applicable
-            // if (isset($product_from_shop1['variations']) && is_array($product_from_shop1['variations'])) {
-            //     foreach ($product_from_shop1['variations'] as $variation_data) {
-            //         $variation = new WC_Product_Variation();
-            //         $variation->set_props($variation_data);
-            //         $product->add_variation($variation);
-            //     }
-            // }
         }
     }
 }
+
 
 
 /**
