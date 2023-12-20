@@ -244,17 +244,13 @@ function fbs_upload_image_from_url($image_url) {
  * @author Fazle Bari <fazlebarisn@gmail.com>
  */ 
  function fbs_get_products_from_shop1() {
-     $api_url = 'https://wordpressshop1.csoft.ca/wp-json/wc/v3/products';
+     $api_url = 'https://modern.cansoft.com/db-clone/api/j3-mijoshop-product?key=58fff5F55dd444967ddkhzf&clone_status=All';
  
      // $consumer_key and $consumer_secret keys generated in WordPressShop1.
-     $consumer_key = 'ck_223a270f3f8d2ea4f31b3f56bb6303af790b4bdd';
-     $consumer_secret = 'cs_d738bbcaba68aa180e9f0189d2dfc4f6c0a34d50';
+     //$consumer_key = 'ck_223a270f3f8d2ea4f31b3f56bb6303af790b4bdd';
+     //$consumer_secret = 'cs_d738bbcaba68aa180e9f0189d2dfc4f6c0a34d50';
  
-     $response = wp_remote_get($api_url, array(
-         'headers' => array(
-             'Authorization' => 'Basic ' . base64_encode($consumer_key . ':' . $consumer_secret),
-         ),
-     ));
+     $response = wp_remote_get($api_url);
  
      if (is_wp_error($response)) {
          // Handle error.
@@ -264,7 +260,7 @@ function fbs_upload_image_from_url($image_url) {
  
      $body = wp_remote_retrieve_body($response);
      $products = json_decode($body, true);
-    //  dd($products);
+     dd($products);
      if (is_array($products)) {
          return $products;
      } else {
