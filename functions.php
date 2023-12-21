@@ -303,3 +303,93 @@ function fbs_update_or_create_terms() {
     }
 
 }
+
+
+// Make sure WooCommerce is active
+if (class_exists('WooCommerce')) {
+
+    // Function to create products
+    function create_products_from_json($json_data) {
+        foreach ($json_data as $product_data) {
+            // Check if the product already exists
+            $existing_product = wc_get_product($product_data['product_id']);
+
+            if (!$existing_product) {
+                // Product does not exist, create a new one
+                $product = new WC_Product();
+
+                // Set product data
+                $product->set_name($product_data['meta']['name']);
+                $product->set_type('simple');
+                $product->set_regular_price('0.00'); // Set the appropriate price
+                $product->set_description($product_data['meta']['description']);
+
+                // Enable stock management
+                $product->set_manage_stock(true);
+                $product->set_stock_quantity(100); // Set the appropriate quantity
+
+                // Set product categories and tags
+                $category_ids = array_map(function ($category) {
+                    return $category['category_id'];
+                }, $product_data['categories']);
+                $product->set_category_ids($category_ids);
+
+                // Save the product
+                $product_id = $product->save();
+
+                // Output the product ID for reference
+                echo 'Product created with ID: ' . $product_id . '<br>';
+            } else {
+                // Product already exists, update if needed
+                // You can implement an update logic here if necessary
+                echo 'Product with ID ' . $product_data['product_id'] . ' already exists.<br>';
+            }
+        }
+    }
+
+    // JSON data from the API
+    $json_data = [
+        // ... (your JSON data)
+    ];
+
+    // Hook to run the function when WordPress is initialized
+    add_action('init', function () use ($json_data) {
+        create_products_from_json($json_data);
+    });
+}
+
+// Make sure WooCommerce is active
+if (class_exists('WooCommerce')) {
+
+    // Function to fetch and create products from API
+    function create_products_from_api() {
+        // Replace the API link with the actual link
+        $api_link = 'https://modern.cansoft.com/db-clone/api/j3-mijoshop-product?key=58fff5F55dd444967ddkhzf&clone_status=All';
+
+        // Make the API request
+        $response = wp_remote_get($api_link);
+
+        // Check if the request was successful
+        if (is_array($response) && !is_wp_error($response)) {
+            // Get the JSON data from the response body
+            $json_data = json_decode(wp_remote_retrieve_body($response), true);
+
+            // Check if JSON decoding was successful
+            if ($json_data !== null) {
+                // Create products using the retrieved JSON data
+                create_products_from_json($json_data);
+            } else {
+                // Handle JSON decoding error
+                echo 'Error decoding JSON data.';
+            }
+        } else {
+            // Handle API request error
+            echo 'Error fetching data from API.';
+        }
+    }
+
+    // Hook to run the function when WordPress is initialized
+    add_action('init', 'create_products_from_api');
+}
+
+
